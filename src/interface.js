@@ -5,6 +5,12 @@ var _ = require('lodash');
 
 var nixEnvProcesses = [];
 
+var log = function() {
+    if (process.env.NODE_ENV !== 'test') {
+        console.log.apply(this, arguments);
+    }
+};
+
 exports.nixEnv = function(args, env, callback, error_callback) {
     var output = "";
     var outerr = "";
@@ -19,7 +25,7 @@ exports.nixEnv = function(args, env, callback, error_callback) {
     };
     nixEnvProcesses.push(nixEnvProcessesItem);
 
-    console.log("nix-env: " + args);
+    log("nix-env: " + args);
 
     nixProcess.stdout.on("data", function(data) {
         output += data;
@@ -62,11 +68,11 @@ exports.nixInstantiate = function(prefix_args, expression, removeQuotations, use
     if (useStdin) {
         nixProcess.stdin.write(expression);
         nixProcess.stdin.end();
-        // console.log("nix-instantiate " + args.join(" ") + "\n" + expression);
+        // log("nix-instantiate " + args.join(" ") + "\n" + expression);
     } else {
-        // console.log("nix-instantiate " + args.join(" "));
+        // log("nix-instantiate " + args.join(" "));
     }
-    console.log("nix-instantiate " + args.join(" "));
+    log("nix-instantiate " + args.join(" "));
 
     nixProcess.stdout.on("data", function(data) {
         output += data;
@@ -100,7 +106,7 @@ exports.nixBuild = function(args, env, callback, error_callback) {
 
     var nixProcess = spawn('nix-build', args, options);
 
-    console.log("nix-build: " + args);
+    log("nix-build: " + args);
 
     nixProcess.stdout.on("data", function(data) {
         output += data;
@@ -202,7 +208,7 @@ exports.allPackages = function(file_arg, profile_arg, env, callback, error_callb
                     compare: arr[3]
                 });
             }
-            console.log("allPackages: " + items.length);
+            log("allPackages: " + items.length);
             callback(items);
         };
 
@@ -348,7 +354,7 @@ exports.getProfiles = function(profilePaths) {
     return result;
 };
 
-// console.log(exports.getProfiles(['/nix/var/nix/profiles']))
+// log(exports.getProfiles(['/nix/var/nix/profiles']))
 
 
 function endsWith(str, suffix) {
@@ -374,56 +380,6 @@ exports.nixpkgs = function() {
     } else {
         return '/nix/var/nix/profiles/per-user/root/channels/nixos/nixpkgs';
     }
-};
-
-exports.options_old = function(configurationnix, path, optionsWithVal, file_arg, env, callback, error_callback) {
-    exports.nixInstantiate(
-        [
-            "./src/eval.nix", "--eval", "--strict", "--show-trace",
-            "-A", "options", "--arg", "optionsWithVal", optionsWithVal
-        ]
-        .concat((configurationnix && optionsWithVal) ? ["--argstr", "configurationnix", configurationnix] : [])
-        .concat(path ? ["--argstr", "path", path] : [])
-        .concat(file_arg ? ["-I", "nixpkgs=" + file_arg] : ["-I", "nixpkgs=" + exports.nixpkgs()]),
-        null,
-        true,
-        false,
-        env,
-        callback,
-        error_callback
-    );
-};
-
-exports.get_old = function(configurationnix, path, file_arg, env, callback, error_callback) {
-    exports.nixInstantiate(
-        [
-            "./src/eval.nix", "--eval", "--strict", "--show-trace",
-            "-A", "get", "--argstr", "path", path
-        ]
-        .concat(configurationnix ? ["--argstr", "configurationnix", configurationnix] : [])
-        .concat(file_arg ? ["-I", "nixpkgs=" + file_arg] : ["-I", "nixpkgs=" + exports.nixpkgs()]),
-        null,
-        false,
-        false,
-        env,
-        callback,
-        error_callback
-    );
-};
-
-exports.toNixString_old = function(object, env, callback, error_callback) {
-    exports.nixInstantiate(
-        [
-            "./src/eval.nix", "--eval", "--strict", "--show-trace",
-            "-A", "parse", "--argstr", "json", object
-        ],
-        null,
-        false,
-        false,
-        env,
-        callback,
-        error_callback
-    );
 };
 
 
@@ -457,7 +413,7 @@ exports.get = function(configurationnix, path, file_arg, env) {
             exports.nixInstantiate(
                 [
                     "./src/eval.nix", "--eval", "--strict", "--show-trace", "--json",
-                    "-A", "get", "--argstr", "path", path
+                    "-A", "get", "--argstr", "path", path||''
                 ]
                 .concat((configurationnix) ? ["--argstr", "configurationnix", configurationnix] : [])
                 .concat(file_arg ? ["-I", "nixpkgs=" + file_arg] : ["-I", "nixpkgs=" + exports.nixpkgs()]),

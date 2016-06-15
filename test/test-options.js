@@ -21,7 +21,7 @@ describe('NixInterface.options', () => {
                 });
         });
         it('expect array not to be empty', () => {
-            expect(result.length).toBeGreaterThan(3890);
+            expect(result.length).toBeGreaterThan(3500);
         });
         it('expect (first) item to be valid', () => {
             expect(result[0].declarations).toBeA('array');
@@ -59,7 +59,6 @@ describe('NixInterface.options', () => {
         it('expect result not to be empty', () => {
             expect(values.obj).toBeAn('object').toNotBe({});
             expect(values.items).toBeAn('array').toNotBe([]);
-            expect(values.items.length).toBe(78);
         });
         it('expect some items to be boolean', () => {
             expect(values.obj['services.openssh.enable'].val)

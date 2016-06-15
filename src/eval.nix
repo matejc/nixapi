@@ -8,9 +8,9 @@ with import <nixpkgs/lib>;
 
 let
   pkgs = import <nixpkgs> { inherit system; };
-  eval = import <nixpkgs/nixos> {
-    configuration = configuration configurationnix;
+  eval = import <nixpkgs/nixos/lib/eval-config.nix> {
     inherit system;
+    modules = lib.optionals optionsWithVal [(configuration configurationnix)];
   };
   lib = import <nixpkgs/lib>;
   configuration = configurationnix: (import configurationnix { config = eval.config; inherit pkgs lib; });
