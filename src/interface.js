@@ -2,6 +2,8 @@ var spawn = require('child_process').spawn;
 var fs = require('fs');
 var path = require('path');
 var _ = require('lodash');
+const evalNix = __dirname+"/scripts/eval.nix";
+
 
 var nixEnvProcesses = [];
 
@@ -390,7 +392,7 @@ exports.options = function(configurationnix, file_arg, env) {
     return new Promise(function(resolve, reject) {
             exports.nixInstantiate(
                 [
-                    "./src/eval.nix", "--eval", "--strict", "--show-trace", "--json",
+                    evalNix, "--eval", "--strict", "--show-trace", "--json",
                     "-A", "options", "--arg", "optionsWithVal", !!configurationnix
                 ]
                 .concat(configurationnix ? ["--argstr", "configurationnix", configurationnix] : [])
@@ -412,7 +414,7 @@ exports.get = function(configurationnix, path, file_arg, env) {
     return new Promise(function(resolve, reject) {
             exports.nixInstantiate(
                 [
-                    "./src/eval.nix", "--eval", "--strict", "--show-trace", "--json",
+                    evalNix, "--eval", "--strict", "--show-trace", "--json",
                     "-A", "get", "--argstr", "path", path||''
                 ]
                 .concat((configurationnix) ? ["--argstr", "configurationnix", configurationnix] : [])
